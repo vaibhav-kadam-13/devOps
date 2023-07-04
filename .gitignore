@@ -1,5 +1,6 @@
+[aeiou]*.php
+
 !important.py
 *.py
-*.php
 *.js
 *.net
