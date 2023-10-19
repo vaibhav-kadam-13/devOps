@@ -35,3 +35,86 @@ jobs:
           SONAR_TOKEN: ${{ secrets.sonar_token }}
           SONAR_HOST_URL: ${{ secrets.sonar_url }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+           aws-region: ap-south-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITIORY: demo3
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          # Build a docker container and
+          # push it to ECR so that it can
+          # be deployed to ECS.
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+         # echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+        #  echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+       # -name: Set Commit SHA environment variables
+       #   id: set-commit-sha
+      #    run: echo "COMMIT_SHA=${{ github.sha }}" >> $GITHUB_ENV
+
+     #      deploy:
+    #needs: build_and_test
+    #runs-on: self-hosted
+
+    #steps:
+     
+      #- name: Checkout repository
+       # uses: actions/checkout@v2
+ 
+      #- name: login to ecr
+      #  run: |
+     #    aws ecr get-login-password --region ap-south-1 | docker login --username vaibhav --password-stdin 662750182745.dkr.ecr.ap-south-1.amazonaws.com
+ 
+      #- name: Stop the running container
+       # run: |
+        #  docker stop demo3 || true
+          
+
+      #- name: Delete the old image
+      #  run: |
+       #   docker rmi -f 196141741137.dkr.ecr.ap-south-1.amazonaws.com/freightadda-utilityservice:latest || true
+        #  docker rmi -f utilityservice
+          
+      #- name: Pull the latest image from ECR
+      #  run: |
+       #   docker pull 196141741137.dkr.ecr.ap-south-1.amazonaws.com/freightadda-utilityservice:latest
+        #  docker tag 196141741137.dkr.ecr.ap-south-1.amazonaws.com/freightadda-utilityservice:latest utilityservice:latest
+      #- name: Run Docker Compose file
+      #  run: |
+      #    yes | docker-compose up -d
+    #    working-directory: /
+#       - name: Run the container
+#         run: |
+#           docker run -it --name utilityservice -d -p 8088:8088 196141741137.dkr.ecr.ap-south-1.amazonaws.com/freightadda-utilityservice:latest
+          
+  #    - name: Generate Deployment Report
+  #      run: |
+   #       echo "Deployment Report" > deployment_report.txt
+    #      echo "-----------------" >> deployment_report.txt
+     #     echo "Deployment Date: $(date)" >> deployment_report.txt
+      #    echo "Deployment Environment: dev" >> deployment_report.txt
+       #   echo "Deployed Image Tag: latest" >> deployment_report.txt
+        #  echo "Deployed Commit: ${{ github.sha }}" >> deployment_report.txt
+         # echo "Deployed By: ${{ github.actor }}" >> deployment_report.txt
+    
+   #     continue-on-error: true
+
+#      - name: Upload Deployment Report
+ #      with:
+  #        name: deployment-report
+   #       path: deployment_report.txt
+          
