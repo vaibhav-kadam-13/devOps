@@ -5,6 +5,10 @@ on:
       name:
         description: "for demo"
         default: "Maven"
+  push:
+    branches:
+      - master
+      
   
 jobs:
   build:
